@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<div id="stage"></div>
+	<div id="manual">left,right key or A,D key is moving red object.</div>
+	<script	 src="../lib/three.min.js"></script>
+	<script	 src="https://rawgithub.com/stemkoski/stemkoski.github.com/master/Three.js/js/KeyboardState.js"></script>
+	<script	>
+		new function() {
+			var width = 600,
+			     height =480,
+			     keyboard = new KeyboardState(),
+			     clock = new THREE.Clock();
+
+			//scene
+			var scene = new THREE.Scene();
+
+			//player
+			var geometry = new THREE.CubeGeometry(50,50,50);
+			var material = new THREE.MeshLambertMaterial({ color: "red"});
+			var cube = new THREE.Mesh(geometry, material);
+			cube.position.set(0, 50, 0); //rotate, scale
+			cube.castShadow = true;
+			scene.add(cube);
+
+			function Enemy() {
+				var geometry = new THREE.CubeGeometry(50,50,50),
+					material = new THREE.MeshLambertMaterial({ color: "green"}),
+					cube = new THREE.Mesh(geometry, material), //this
+					randnum = Math.floor( Math.random() * 700 ) - 350;
+
+				cube.position.set(randnum, 50, -1000); //rotate, scale
+				cube.castShadow = true;
+
+				cube.move = function(){
+					this.rotation.x += 5 * Math.PI /180;
+					this.position.z += 5;
+				}
+				cube.destroy = function(){
+				}
+				return cube;
+			}
+
+			var pGeometry = new THREE.PlaneGeometry(10000,10000);
+			var pMaterial = new THREE.MeshLambertMaterial({ 
+				color: "yellow",
+				side: THREE.DoubleSide
+			});
+			var plane = new THREE.Mesh(pGeometry, pMaterial);
+			plane.receiveShadow = true;
+			plane.position.set(0,0,0);
+			plane.rotation.x = 90 * Math.PI / 180; //ragian
+			scene.add(plane);
+
+			//helper
+			var axis = new THREE.AxisHelper(1000);
+			axis.position.set(0, 0, 0);
+			scene.add(axis);
+
+			//light
+			var light = new THREE.DirectionalLight(0xffffff, 1);
+			light.position.set(0, 100, 30);
+			light.castShadow = true; //use shadow
+			scene.add(light);
+			var ambient = new THREE.AmbientLight(0x550000);
+			scene.add(ambient);
+
+			//camera
+			var camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+			camera.position.set(200, 300, 700);
+			camera.lookAt(cube.position);
+			//camera.lookAt(0,0,0);
+
+			//rendering
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize(width, height);
+			renderer.setClearColor(0xeeeeee, 1);
+			renderer.shadowMapEnabled = true; //use shadow
+			document.getElementById('stage').appendChild(renderer.domElement);
+
+			var enemys = [];
+			var initMaxEnemys = 100;
+			function render(){
+				var gameTime = Math.floor( clock.getElapsedTime() * 100 );
+				if (gameTime % 60 == 0) {
+					for (var i = 0; i < initMaxEnemys; i++) {
+						if(!enemys[i]){
+							enemys[i] = new Enemy();
+							scene.add(enemys[i]);
+							break;
+						}
+					}
+				 }
+
+
+				camera.lookAt(cube.position)
+				keyboard.update();
+				var moveDistance = 10;
+				var maxLeftDistance = -300;
+				var maxRightDistance = 220;
+
+				requestAnimationFrame(render);
+				cube.rotation.x -= 5 * Math.PI /180;
+
+				//radian example
+				//cube.rotation.y += 1 * Math.PI /180;
+				//cube.rotation.z += 5 * Math.PI /180;
+				//cube.position.x = Math.sin(new Date().getTime() / 200) * 100;
+				//cube.position.z = Math.cos(new Date().getTime() / 200) * 100;
+
+				if ( keyboard.pressed("A") || keyboard.pressed("left")) {
+					if ( cube.position.x > maxLeftDistance ) {
+						cube.position.x -= moveDistance;
+					}
+				}
+
+				if ( keyboard.pressed("D") || keyboard.pressed("right")) {
+					if ( cube.position.x < maxRightDistance ) {
+						cube.position.x += moveDistance;
+					}
+				}
+
+				for (var i = 0; i < enemys.length; i++) {
+					if (enemys[i]) {
+						enemys[i].move();
+						if (enemys[i].position.z > 200) {
+							scene.remove(enemys[i]);
+							delete enemys[i];
+							enemys[i] = null
+						}
+					}
+				}
+
+				renderer.render(scene, camera);
+			}
+			render();
+		};
+	</script>
+</body>
+</html>
