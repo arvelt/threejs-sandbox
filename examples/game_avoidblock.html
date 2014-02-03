@@ -27,16 +27,15 @@
 				var geometry = new THREE.CubeGeometry(50,50,50),
 					material = new THREE.MeshLambertMaterial({ color: "green"}),
 					cube = new THREE.Mesh(geometry, material), //this
-					randnum = Math.floor( Math.random() * 700 ) - 350;
+					randnum = Math.floor( Math.random() * 700 ) - 350,
+					speed = Math.floor( Math.random() * 5 ) + 5;
 
 				cube.position.set(randnum, 50, -1000); //rotate, scale
 				cube.castShadow = true;
 
 				cube.move = function(){
 					this.rotation.x += 5 * Math.PI /180;
-					this.position.z += 5;
-				}
-				cube.destroy = function(){
+					this.position.z += speed;
 				}
 				return cube;
 			}
@@ -78,13 +77,21 @@
 			renderer.shadowMapEnabled = true; //use shadow
 			document.getElementById('stage').appendChild(renderer.domElement);
 
-			var enemys = [];
-			var initMaxEnemys = 100;
+			var enemys = new Array(50);
 			function render(){
-				var gameTime = Math.floor( clock.getElapsedTime() * 100 );
-				if (gameTime % 60 == 0) {
-					for (var i = 0; i < initMaxEnemys; i++) {
-						if(!enemys[i]){
+				var gameTime = Math.floor( clock.getElapsedTime() * 1000);
+				var appendPerTime;
+				console.log("gameTime",gameTime)
+
+				if (gameTime < 10000) appendPerTime = 120
+				else if (gameTime < 25000) appendPerTime = 80
+				else if (gameTime < 50000) appendPerTime = 40
+				else if (gameTime < 75000) appendPerTime = 20
+				else appendPerTime = 10
+
+				if (gameTime % appendPerTime == 0) {
+					for (var i = 0; i < enemys.length; i++) {
+						if(enemys[i]==null){
 							enemys[i] = new Enemy();
 							scene.add(enemys[i]);
 							break;
