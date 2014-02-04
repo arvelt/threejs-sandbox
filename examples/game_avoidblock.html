@@ -12,6 +12,9 @@
 			     keyboard = new KeyboardState(),
 			     clock = new THREE.Clock();
 
+			//gameTime
+			var gameTime = 0;
+
 			//scene
 			var scene = new THREE.Scene();
 
@@ -77,28 +80,21 @@
 			renderer.shadowMapEnabled = true; //use shadow
 			document.getElementById('stage').appendChild(renderer.domElement);
 
-			var enemys = new Array(50);
+			var enemys = [];
 			function render(){
-				var gameTime = Math.floor( clock.getElapsedTime() * 1000);
-				var appendPerTime;
-				console.log("gameTime",gameTime)
 
-				if (gameTime < 10000) appendPerTime = 120
-				else if (gameTime < 25000) appendPerTime = 80
-				else if (gameTime < 50000) appendPerTime = 40
-				else if (gameTime < 75000) appendPerTime = 20
-				else appendPerTime = 10
+				//game controol
+				if (gameTime < 20 * 100) appendPerTime = 90
+				else if (gameTime < 40 * 100) appendPerTime = 60
+				else if (gameTime < 60 * 100) appendPerTime = 30
+				else if (gameTime < 80 * 100) appendPerTime = 30
+				else appendPerTime = 5
 
 				if (gameTime % appendPerTime == 0) {
-					for (var i = 0; i < enemys.length; i++) {
-						if(enemys[i]==null){
-							enemys[i] = new Enemy();
-							scene.add(enemys[i]);
-							break;
-						}
-					}
+					var enemy = new Enemy();
+					enemys.push(enemy);
+					scene.add(enemy);
 				 }
-
 
 				camera.lookAt(cube.position)
 				keyboard.update();
@@ -115,6 +111,7 @@
 				//cube.position.x = Math.sin(new Date().getTime() / 200) * 100;
 				//cube.position.z = Math.cos(new Date().getTime() / 200) * 100;
 
+				//player move and collision
 				if ( keyboard.pressed("A") || keyboard.pressed("left")) {
 					if ( cube.position.x > maxLeftDistance ) {
 						cube.position.x -= moveDistance;
@@ -127,18 +124,17 @@
 					}
 				}
 
-				for (var i = 0; i < enemys.length; i++) {
-					if (enemys[i]) {
-						enemys[i].move();
-						if (enemys[i].position.z > 200) {
-							scene.remove(enemys[i]);
-							delete enemys[i];
-							enemys[i] = null
-						}
+				//enemy move and conllision
+				enemys.some(function(element, index){
+					element.move();
+					if (element.position.z > 200) {
+						enemys.splice(index, 1);
+						scene.remove(element);
 					}
-				}
+				})
 
 				renderer.render(scene, camera);
+				gameTime++;
 			}
 			render();
 		};
