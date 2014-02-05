@@ -2,6 +2,7 @@
 <html>
 <body>
 	<div id="stage"></div>
+	<div id="debug"></div>
 	<div id="manual">left,right key or A,D key is moving red object.</div>
 	<script	 src="../lib/three.min.js"></script>
 	<script	 src="https://rawgithub.com/stemkoski/stemkoski.github.com/master/Three.js/js/KeyboardState.js"></script>
@@ -132,6 +133,32 @@
 						scene.remove(element);
 					}
 				})
+
+				//tryal collision
+				document.getElementById("debug").textContent = "";
+
+				var ray = new THREE.Raycaster(cube.position, new THREE.Vector3(1,0,0), 0, 26);
+				var intersects = ray.intersectObjects(enemys, true);
+				if(intersects.length > 0){
+					console.log("hit right")
+					document.getElementById("debug").textContent = "hit";
+				}
+
+				var ray2 = new THREE.Raycaster(cube.position, new THREE.Vector3(-1,0,0), 0, 26);
+				var intersects2 = ray2.intersectObjects(enemys, true);
+				if(intersects2.length > 0){
+					console.log("hit behind")
+					document.getElementById("debug").textContent = "hit";
+				}
+
+				var ray3 = new THREE.Raycaster(cube.position, new THREE.Vector3(0,0,-1), 0, 35);
+				var intersects3 = ray3.intersectObjects(enemys, true);
+				if(intersects3.length > 0){
+					console.log("hit left")
+					document.getElementById("debug").textContent = "hit";
+				}
+
+
 
 				renderer.render(scene, camera);
 				gameTime++;
