@@ -1,10 +1,25 @@
 <!DOCTYPE html>
 <html>
+<head>
+<style type="text/css">
+#content {
+	width: 100%;
+}
+
+#content div{
+	margin: 0 auto;
+	text-align: center;
+}
+</style>
+</head>
 <body>
-	<div id="stage"></div>
-	<div id="debug"></div>
-	<div id="manual">left,right key or A,D key is moving red object.</div>
+	<div id="content">
+		<div id="stage"></div>
+		<div id="debug"></div>
+		<div id="manual">left,right key or A,D key is moving red object.</div>
+	</div>
 	<script	 src="../lib/three.min.js"></script>
+	<script	 src="../lib/font/helvetiker_regular.typeface.js"></script>
 	<script	 src="https://rawgithub.com/stemkoski/stemkoski.github.com/master/Three.js/js/KeyboardState.js"></script>
 	<script	>
 		new function() {
@@ -56,9 +71,9 @@
 			scene.add(plane);
 
 			//helper
-			var axis = new THREE.AxisHelper(1000);
-			axis.position.set(0, 0, 0);
-			scene.add(axis);
+			// var axis = new THREE.AxisHelper(1000);
+			// axis.position.set(0, 0, 0);
+			// scene.add(axis);
 
 			//light
 			var light = new THREE.DirectionalLight(0xffffff, 1);
@@ -72,7 +87,6 @@
 			var camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
 			camera.position.set(200, 300, 700);
 			camera.lookAt(cube.position);
-			//camera.lookAt(0,0,0);
 
 			//rendering
 			var renderer = new THREE.WebGLRenderer();
@@ -81,6 +95,14 @@
 			renderer.shadowMapEnabled = true; //use shadow
 			document.getElementById('stage').appendChild(renderer.domElement);
 
+			//prepare End text
+			var textGeo = new THREE.TextGeometry("Game Over !!",{});
+			var greenMaterial = new THREE.MeshLambertMaterial( { color: 'pink' } );
+			var textMesh = new THREE.Mesh( textGeo, greenMaterial );
+			textMesh.castShadow = true;
+			textMesh.position.set(-450, 300, 20)
+
+			var isGameOver = false;
 			var enemys = [];
 			function render(){
 
@@ -106,12 +128,6 @@
 				requestAnimationFrame(render);
 				cube.rotation.x -= 5 * Math.PI /180;
 
-				//radian example
-				//cube.rotation.y += 1 * Math.PI /180;
-				//cube.rotation.z += 5 * Math.PI /180;
-				//cube.position.x = Math.sin(new Date().getTime() / 200) * 100;
-				//cube.position.z = Math.cos(new Date().getTime() / 200) * 100;
-
 				//player move and collision
 				if ( keyboard.pressed("A") || keyboard.pressed("left")) {
 					if ( cube.position.x > maxLeftDistance ) {
@@ -134,14 +150,14 @@
 					}
 				})
 
-				//tryal collision
-				document.getElementById("debug").textContent = "";
-
+				//collision
+				var isHit = false;
 				var ray = new THREE.Raycaster(cube.position, new THREE.Vector3(1,0,0), 0, 26);
 				var intersects = ray.intersectObjects(enemys, true);
 				if(intersects.length > 0){
 					console.log("hit right")
 					document.getElementById("debug").textContent = "hit";
+					isHit = true;
 				}
 
 				var ray2 = new THREE.Raycaster(cube.position, new THREE.Vector3(-1,0,0), 0, 26);
@@ -149,6 +165,7 @@
 				if(intersects2.length > 0){
 					console.log("hit behind")
 					document.getElementById("debug").textContent = "hit";
+					isHit = true;
 				}
 
 				var ray3 = new THREE.Raycaster(cube.position, new THREE.Vector3(0,0,-1), 0, 35);
@@ -156,9 +173,28 @@
 				if(intersects3.length > 0){
 					console.log("hit left")
 					document.getElementById("debug").textContent = "hit";
+					isHit = true;
 				}
 
+				//game is over
+				if (isHit) {
+					scene.remove(cube);
+					scene.add( textMesh );
+					isGameOver = true;
+				}
 
+				//control end text
+				if (isGameOver){
+					if (textMesh.position.y > 200) {
+						textMesh.position.y -= 10;
+					}
+					else if (textMesh.position.y > 100) {
+						textMesh.position.y -= 5;
+					}
+					else if (textMesh.position.y > 20) {
+						textMesh.position.y -= 1;
+					}
+				}
 
 				renderer.render(scene, camera);
 				gameTime++;
