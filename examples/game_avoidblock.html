@@ -37,15 +37,22 @@
 
 			//player
 			var geometry = new THREE.CubeGeometry(50,50,50);
-			var material = new THREE.MeshLambertMaterial({ color: "red"});
+			var imgTexture2 = THREE.ImageUtils.loadTexture( "../textures/pebbles-normal-bump.png");
+			imgTexture2.needsUpdate = true;
+			var material = new THREE.MeshLambertMaterial({ map: imgTexture2});
 			var cube = new THREE.Mesh(geometry, material);
 			cube.position.set(0, 50, 0); //rotate, scale
 			cube.castShadow = true;
 			scene.add(cube);
 
+			//enemy texture
+			var imgTexture3 = THREE.ImageUtils.loadTexture( "../textures/tile_aqua.png");
+			imgTexture3.needsUpdate = true;
+
+
 			function Enemy() {
 				var geometry = new THREE.CubeGeometry(50,50,50),
-					material = new THREE.MeshLambertMaterial({ color: "green"}),
+					material = new THREE.MeshLambertMaterial({ map: imgTexture3}),
 					cube = new THREE.Mesh(geometry, material), //this
 					randnum = Math.floor( Math.random() * 700 ) - 350,
 					speed = Math.floor( Math.random() * 5 ) + 5;
@@ -60,16 +67,29 @@
 				return cube;
 			}
 
+			//enemy texture
+			var imgTexture4 = THREE.ImageUtils.loadTexture( "../textures/hedge-bump.png");
+			imgTexture4.needsUpdate = true;
+			imgTexture4.wrapS = imgTexture4.wrapT = THREE.RepeatWrapping;
+			imgTexture4.repeat.set( 1, 1);
+
 			var pGeometry = new THREE.PlaneGeometry(10000,10000);
 			var pMaterial = new THREE.MeshLambertMaterial({ 
-				color: "yellow",
-				side: THREE.DoubleSide
+				color: 0xFFD700
 			});
 			var plane = new THREE.Mesh(pGeometry, pMaterial);
 			plane.receiveShadow = true;
 			plane.position.set(0,0,0);
-			plane.rotation.x = 90 * Math.PI / 180; //ragian
+			plane.rotation.x = -90 * Math.PI / 180; //ragian
 			scene.add(plane);
+
+			var wall = plane.clone();
+			wall.position.set(-1000,0,-2500);
+			wall.rotation.x =  1 * Math.PI / 180; //ragian
+			scene.add(wall);
+
+			//fog
+			scene.fog = new THREE.Fog(0xFFFFE0, 500,2000);
 
 			//helper
 			// var axis = new THREE.AxisHelper(1000);
@@ -79,9 +99,10 @@
 			//light
 			var light = new THREE.DirectionalLight(0xffffff, 1);
 			light.position.set(0, 100, 30);
+			cube.position
 			light.castShadow = true; //use shadow
 			scene.add(light);
-			var ambient = new THREE.AmbientLight(0x550000);
+			var ambient = new THREE.AmbientLight(0x770000);
 			scene.add(ambient);
 
 			//camera
