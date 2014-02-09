@@ -57,7 +57,7 @@
 					randnum = Math.floor( Math.random() * 700 ) - 350,
 					speed = Math.floor( Math.random() * 5 ) + 5;
 
-				cube.position.set(randnum, 50, -1000); //rotate, scale
+				cube.position.set(randnum, 50, -1400); //rotate, scale
 				cube.castShadow = true;
 
 				cube.move = function(){
@@ -166,7 +166,7 @@
 				//enemy move and conllision
 				enemys.some(function(element, index){
 					element.move();
-					if (element.position.z > 200) {
+					if (element.position.z > 500) {
 						enemys.splice(index, 1);
 						scene.remove(element);
 					}
